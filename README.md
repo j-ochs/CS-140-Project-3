@@ -23,3 +23,5 @@ RULES for iCu:
   http://pilot.westmont.edu:28900?i=rodkey&u=rwilder&where=vl-1a-wap3 (Links to an external site.)
 
   Use select to make sure that both the server and client can run independently.
+
+We would have to filter through there ip address that have port number 28900 open. 
