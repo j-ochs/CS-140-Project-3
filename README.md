@@ -25,3 +25,14 @@ RULES for iCu:
   Use select to make sure that both the server and client can run independently.
 
 We would have to filter through there ip address that have port number 28900 open. 
+
+As soon as someone connects with server and gets information, then change the ip adress.
+Alternate through ip address.
+
+Once we get an ip adress, save themn so that we can cycle through saved adresses over and over again.
+
+10AM - 12AM(Midnight)
+
+Connect to their server then shut it down using close(), exit(), find a way to keep people from doing that to us.
+
+Report with name, how long that instance of our server is up to pilot.westmont,
