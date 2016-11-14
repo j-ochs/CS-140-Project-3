@@ -19,6 +19,9 @@
 
  #define WESTMONT_ID "ahumphrey\n"
 
+ /* function declaration */
+void addip(char* name);
+
 int main(int argc , char *argv[])
 {
     char *westmont_id = "ahumphrey\n";
@@ -27,6 +30,10 @@ int main(int argc , char *argv[])
     int socket_desc , client_sock , c , read_size;
     struct sockaddr_in server , client;
     char client_message[2000];
+
+    //Array can hold a maximum of 20 different ip addresses to refuse connections in 15 minute intervals
+    char refuseArray[20][16];
+    int refuseInt = 0;
     
     //Create socket
     socket_desc = socket(AF_INET , SOCK_STREAM , 0);
@@ -64,9 +71,15 @@ int main(int argc , char *argv[])
         perror("accept failed");
         return 1;
     }
+    
     puts("Connection accepted");
     printf("The ip address of the person connected is: %s\n", inet_ntoa(client.sin_addr));
     printf("The port is: %d\n", (int) ntohs(client.sin_port));
+
+    //Once this connection is made add their ip address to refusal array, after 15 mins remove it
+    char str[16];
+    sprintf(str, "%d", client.sin_addr);
+    addip(str);
     
     //Receive a message from client
 
@@ -99,4 +112,10 @@ int main(int argc , char *argv[])
     }
     
     return 0;
+}
+
+/* function adding the given ip address to the array of ip address that can not currently connect to server */
+void addip(char* name) {
+
+   printf("This is ip address that was just passed to the function%s\n", name);
 }
