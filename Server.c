@@ -1,67 +1,80 @@
 /**************************************************************************
 *	This is a simple echo server.  This demonstrates the steps to set up
 *	a streaming server.
+ 
+ //Run using gcc Project3Server and run a.out
+ //Telnet is telnet localhost 28900
 **************************************************************************/
-#include <stdio.h>
-#include <errno.h>
-#include <sys/socket.h>
-#include <resolv.h>
-#include <arpa/inet.h>
-#include <errno.h>
+/*
+ C socket server example
+ */
 
-#define MY_PORT		28900
-#define MAXBUF		1024
+#include<stdio.h>
+#include<string.h>    //strlen
+#include<sys/socket.h>
+#include<arpa/inet.h> //inet_addr
+#include<unistd.h>    //write
 
-int main(int Count, char *Strings[])
-{   int sockfd;
-	struct sockaddr_in self;
-	char buffer[MAXBUF];
-
-	/*---Create streaming socket---*/
-    if ( (sockfd = socket(AF_INET, SOCK_STREAM, 0)) < 0 )
-	{
-		perror("Socket");
-		exit(errno);
-	}
-
-	/*---Initialize address/port structure---*/
-	bzero(&self, sizeof(self));
-	self.sin_family = AF_INET;
-	self.sin_port = htons(MY_PORT);
-	self.sin_addr.s_addr = INADDR_ANY;
-
-	/*---Assign a port number to the socket---*/
-    if ( bind(sockfd, (struct sockaddr*)&self, sizeof(self)) != 0 )
-	{
-		perror("socket--bind");
-		exit(errno);
-	}
-
-	/*---Make it a "listening socket"---*/
-	if ( listen(sockfd, 20) != 0 )
-	{
-		perror("socket--listen");
-		exit(errno);
-	}
-
-	/*---Forever... ---*/
-	while (1)
-	{	int clientfd;
-		struct sockaddr_in client_addr;
-		int addrlen=sizeof(client_addr);
-
-		/*---accept a connection (creating a data pipe)---*/
-		clientfd = accept(sockfd, (struct sockaddr*)&client_addr, &addrlen);
-		printf("%s:%d connected\n", inet_ntoa(client_addr.sin_addr), ntohs(client_addr.sin_port));
-
-		/*---Echo back anything sent---*/
-		send(clientfd, buffer, recv(clientfd, buffer, MAXBUF, 0), 0);
-
-		/*---Close data connection---*/
-		close(clientfd);
-	}
-
-	/*---Clean up (should never get here!)---*/
-	close(sockfd);
-	return 0;
+int main(int argc , char *argv[])
+{
+    int socket_desc , client_sock , c , read_size;
+    struct sockaddr_in server , client;
+    char client_message[2000];
+    
+    //Create socket
+    socket_desc = socket(AF_INET , SOCK_STREAM , 0);
+    if (socket_desc == -1)
+    {
+        printf("Could not create socket");
+    }
+    puts("Socket created");
+    
+    //Prepare the sockaddr_in structure
+    server.sin_family = AF_INET;
+    server.sin_addr.s_addr = INADDR_ANY;
+    server.sin_port = htons( 28900 );
+    
+    //Bind
+    if( bind(socket_desc,(struct sockaddr *)&server , sizeof(server)) < 0)
+    {
+        //print the error message
+        perror("bind failed. Error");
+        return 1;
+    }
+    puts("bind done");
+    
+    //Listen
+    listen(socket_desc , 3);
+    
+    //Accept and incoming connection
+    puts("Waiting for incoming connections...");
+    c = sizeof(struct sockaddr_in);
+    
+    //accept connection from an incoming client
+    client_sock = accept(socket_desc, (struct sockaddr *)&client, (socklen_t*)&c);
+    if (client_sock < 0)
+    {
+        perror("accept failed");
+        return 1;
+    }
+    puts("Connection accepted");
+    
+    //Receive a message from client
+    while( (read_size = recv(client_sock , client_message , 2000 , 0)) > 0 )
+    {
+        //Send the message back to client
+        write(client_sock , client_message , strlen(client_message));
+    }
+    
+    if(read_size == 0)
+    {
+        puts("Client disconnected");
+        fflush(stdout);
+    }
+    else if(read_size == -1)
+    {
+        perror("recv failed");
+    }
+    
+    return 0;
 }
