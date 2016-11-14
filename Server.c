@@ -1,22 +1,28 @@
-/**************************************************************************
-*	This is a simple echo server.  This demonstrates the steps to set up
-*	a streaming server.
+/*
+	This is a simple echo server.  This demonstrates the steps to set up
+	a streaming server.
  
  //Run using gcc Project3Server and run a.out
  //Telnet is telnet localhost 28900
-**************************************************************************/
-/*
+
+
  C socket server example
  */
 
-#include<stdio.h>
-#include<string.h>    //strlen
-#include<sys/socket.h>
-#include<arpa/inet.h> //inet_addr
-#include<unistd.h>    //write
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>    
+#include <sys/socket.h>
+#include <arpa/inet.h> 
+#include <unistd.h>    
+
+
+ //#define WESTMONT_ID "jochs";
 
 int main(int argc , char *argv[])
 {
+    char *westmont_jochs = "jochs";
+    char *whois = "Who is this?\n";
     int socket_desc , client_sock , c , read_size;
     struct sockaddr_in server , client;
     char client_message[2000];
@@ -60,10 +66,15 @@ int main(int argc , char *argv[])
     puts("Connection accepted");
     
     //Receive a message from client
+
     while( (read_size = recv(client_sock , client_message , 2000 , 0)) > 0 )
     {
-        //Send the message back to client
-        write(client_sock , client_message , strlen(client_message));
+        if (strcmp(client_message,whois) != 0){
+            system("arp -a"); //This is where we execute the terminal command arp -a
+            write(client_sock, westmont_jochs, strlen(westmont_jochs)); //send username
+        }
+        //Send username jochs back to client
+        //write(client_sock , client_message , strlen(client_message));
     }
     
     if(read_size == 0)
