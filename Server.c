@@ -17,12 +17,13 @@
 #include <unistd.h>    
 
 
- //#define WESTMONT_ID "jochs";
+ #define WESTMONT_ID "ahumphrey\n"
 
 int main(int argc , char *argv[])
 {
-    char *westmont_jochs = "jochs";
-    char *whois = "Who is this?\n";
+    char *westmont_id = "ahumphrey\n";
+    char *whois = "Who are you?\n";
+    char *invalid = "Sorry! You have entered an invalid request. Please Try again!\n";
     int socket_desc , client_sock , c , read_size;
     struct sockaddr_in server , client;
     char client_message[2000];
@@ -64,17 +65,27 @@ int main(int argc , char *argv[])
         return 1;
     }
     puts("Connection accepted");
+    printf("The ip address of the person connected is: %s\n", inet_ntoa(client.sin_addr));
+    printf("The port is: %d\n", (int) ntohs(client.sin_port));
     
     //Receive a message from client
 
     while( (read_size = recv(client_sock , client_message , 2000 , 0)) > 0 )
     {
-        if (strcmp(client_message,whois) != 0){
-            system("arp -a"); //This is where we execute the terminal command arp -a
-            write(client_sock, westmont_jochs, strlen(westmont_jochs)); //send username
+        if (strcmp(client_message,whois) == 0){
+            //system("arp -a"); //This is where we execute the terminal command arp -a
+            //Send username jochs back to client
+            write(client_sock, westmont_id, strlen(westmont_id)); //send username
         }
-        //Send username jochs back to client
-        //write(client_sock , client_message , strlen(client_message));
+        else{
+            //Send back invalid
+            write(client_sock , invalid , strlen(invalid));
+        }
+
+        //Flush the buffer
+        fflush(stdout);
+
+        
     }
     
     if(read_size == 0)
